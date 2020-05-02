@@ -42,7 +42,7 @@ func TestBatch(t *testing.T) {
 		"matt",
 		"tony",
 	}
-	var concurrency int64 = 3
+	var concurrency = 3
 	results := &Results{}
 	batch := NewBatch(concurrency)
 

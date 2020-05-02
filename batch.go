@@ -14,8 +14,8 @@ type Batch struct {
 	errors chan error
 }
 
-func NewBatch(concurrency int64) *Batch {
-	return &Batch{sem: semaphore.NewWeighted(concurrency), errors: make(chan error, concurrency)}
+func NewBatch(concurrency int) *Batch {
+	return &Batch{sem: semaphore.NewWeighted(int64(concurrency)), errors: make(chan error, concurrency)}
 }
 
 func (b *Batch) Run(ctx context.Context, taskFunc TaskFunc) error {
