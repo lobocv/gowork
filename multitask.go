@@ -2,8 +2,6 @@ package work
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"sync"
 )
 
@@ -27,7 +25,7 @@ func (m *MultiTask) AddTask(ctx context.Context, fn TaskFunc) {
 	m.tasks = append(m.tasks, task{ctx: ctx, fn: fn})
 }
 
-func (m *MultiTask) Run() error {
+func (m *MultiTask) Run() []error {
 	m.errors = make(chan error, len(m.tasks))
 	m.wg.Add(len(m.tasks))
 	for _, tt := range m.tasks {
@@ -44,16 +42,11 @@ func (m *MultiTask) Run() error {
 
 // wait waits for all the asynchronous legs of the job to complete and then consolidates any errors produced
 // in any leg into one overall error for the job
-func (m *MultiTask) wait() error {
-	var errMsgs []string
-	// Combined any errors generated from each leg of the metrics collection
+func (m *MultiTask) wait() (errs []error) {
 	m.wg.Wait()
 	close(m.errors)
 	for err := range m.errors {
-		errMsgs = append(errMsgs, err.Error())
+		errs = append(errs, err)
 	}
-	if len(errMsgs) > 0 {
-		return fmt.Errorf("errors detected in the multitask: [%s]", strings.Join(errMsgs, "|"))
-	}
-	return nil
+	return
 }

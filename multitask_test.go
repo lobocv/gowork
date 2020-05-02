@@ -26,11 +26,11 @@ func TestMultiTask(t *testing.T) {
 		m.AddTask(ctx, func(ctx context.Context) error {
 			return j.ParamFunc(ctx, &p)
 		})
-		err := m.Run()
+		errs := m.Run()
 
 		require.Equal(t, j.NoParamFuncCalls, ii+1)
 		require.Equal(t, name+" processed", p.name)
-		require.NoError(t, err)
+		require.Empty(t, errs)
 	}
 }
 
@@ -56,11 +56,13 @@ func TestMultiTaskError(t *testing.T) {
 		m.AddTask(ctx, j.ErrorFunc)
 		m.AddTask(ctx, j.ErrorFunc)
 		m.AddTask(ctx, j.ErrorFunc)
-		err := m.Run()
+		errs := m.Run()
 
 		require.Equal(t, j.NoParamFuncCalls, ii+1)
 		require.Equal(t, name+" processed", p.name)
-		require.EqualError(t, err, "errors detected in the multitask: [some error|some error|some error]")
+		for _, err := range errs {
+			require.EqualError(t, err, "some error")
+		}
 	}
 }
 
@@ -68,7 +70,7 @@ type job struct {
 	NoParamFuncCalls int
 }
 
-func (j *job) NoParamFunc(ctx context.Context) error {
+func (j *job) NoParamFunc(_ context.Context) error {
 	j.NoParamFuncCalls++
 	return nil
 }
@@ -77,11 +79,11 @@ type param struct {
 	name string
 }
 
-func (j *job) ParamFunc(ctx context.Context, p *param) error {
+func (j *job) ParamFunc(_ context.Context, p *param) error {
 	p.name = p.name + " processed"
 	return nil
 }
 
-func (j *job) ErrorFunc(ctx context.Context) error {
+func (j *job) ErrorFunc(_ context.Context) error {
 	return fmt.Errorf("some error")
 }

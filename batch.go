@@ -2,8 +2,6 @@ package work
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"sync"
 
 	"golang.org/x/sync/semaphore"
@@ -42,15 +40,11 @@ func (b *Batch) Run(ctx context.Context, taskFunc TaskFunc) error {
 	return nil
 }
 
-func (b *Batch) Wait() error {
-	var errMsgs []string
+func (b *Batch) Wait() (errs []error) {
 	b.wg.Wait()
 	close(b.errors)
 	for err := range b.errors {
-		errMsgs = append(errMsgs, err.Error())
+		errs = append(errs, err)
 	}
-	if len(errMsgs) > 0 {
-		return fmt.Errorf("errors detected in the multitask: [%s]", strings.Join(errMsgs, "|"))
-	}
-	return nil
+	return
 }

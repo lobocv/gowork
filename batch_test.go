@@ -80,9 +80,9 @@ func TestBatch(t *testing.T) {
 	}()
 
 	// Wait for any currently running tasks to finish processing
-	err := batch.Wait()
+	errs := batch.Wait()
 
-	require.NoError(t, err)
+	require.Empty(t, errs)
 	require.Equal(t, len(names), results.calls)
 	for _, name := range names {
 		require.Contains(t, results.combinedNames, name)
