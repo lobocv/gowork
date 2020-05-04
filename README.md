@@ -1,5 +1,7 @@
 # gowork
-Concurrency patterns for golang
+Concurrency patterns for golang.
+These patterns were made for fun to see if generic worker patterns could be developed using closures. 
+They are NOT recommended for production.
 
 These concurrency patterns make use of closures to execute your tasks
 
